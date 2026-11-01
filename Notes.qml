@@ -11,8 +11,9 @@ import QtQuick
 Singleton {
     id: root
 
-    // $MARGIN_BIN, else the build in backend/
-    readonly property string binary: Quickshell.env("MARGIN_BIN") || Quickshell.shellDir + "/backend/target/release/margin"
+    // $MARGIN_BIN (say, the build in backend/ while working on it), else
+    // the installed margin on PATH
+    readonly property string binary: Quickshell.env("MARGIN_BIN") || "margin"
 
     // "notes", "archive" or "trash"; a label narrows "notes" to it
     property string view: "notes"

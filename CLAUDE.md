@@ -12,12 +12,14 @@ Notes, to replace Google Keep, syncing between the phone and this machine. App I
 ## How it runs
 
 ```
-cargo build --release --manifest-path backend/Cargo.toml   # the backend, once and after changes
+makepkg -si                 # install: margin (backend), margin-app, the QML in /etc/xdg/quickshell/margin
+ln -s ~/Projects/margin ~/.config/quickshell/margin   # run this checkout instead (comes first)
+cargo build --release --manifest-path backend/Cargo.toml   # the backend; MARGIN_BIN=$PWD/backend/target/release/margin to use it
 ./margin-app              # open or close the window, starting margin if it isn't running
 ./margin-app new          # the window, on a new note
 ./margin-app menu         # open or close the menu
 ./margin-app menu new     # the menu, on a new note
-qs -p ~/Projects/margin ipc call margin toggle|open|close|compose|menu|capture
+qs -c margin ipc call margin toggle|open|close|compose|menu|capture
 ```
 
 Two ways in, one instance (`shell.qml`), the same notes and backend:
@@ -25,9 +27,9 @@ Two ways in, one instance (`shell.qml`), the same notes and backend:
 - **The window** (`Margin.qml`): an ordinary one (`FloatingWindow`), tiled or floated like any app, with everything (side menu, grid, archive, trash).
 - **The menu** (`NoteMenu.qml`): one of the shell's menus, as Seedling is: a layer-shell panel at the bottom centre (namespace `quickbar-overlay`, so Hyprland blurs it like quickbar's), see-through. A field filtering the notes, up to seven rows, and the window's editor made compact (`Editor.compact`). Enter opens, Ctrl+Enter saves what's typed as a note, Ctrl+o hands over to the window. It keeps its own list (`Notes.fetch`, reloaded on `Notes.changed`), so it doesn't follow the window's view.
 
-Neither opens on starting; `margin-app` starts margin and then asks. A reload puts back whatever was open (`PersistentProperties` in `shell.qml`). Closing the window (q, Ctrl+w) hides it; margin keeps running. `io.github.anisthdev.Margin.desktop` (symlink into `~/.local/share/applications`) is the launcher entry, with New note and Quick menu actions.
+Neither opens on starting; `margin-app` starts margin and then asks. A reload puts back whatever was open (`PersistentProperties` in `shell.qml`). Closing the window (q, Ctrl+w) hides it; margin keeps running. `io.github.anisthdev.Margin.desktop` (installed by the package) is the launcher entry, with New note and Quick menu actions.
 
-No build step for the QML: Quickshell reloads the running app when a file changes. Restart it after rebuilding the backend (`qs kill -p ~/Projects/margin`), since `margin serve` keeps running the old binary. Check `qs list --all` for stray instances: two at once confuse IPC. Logs: `/run/user/1000/quickshell/by-id/*/log.qslog`.
+No build step for the QML: Quickshell reloads the running app when a file changes. Restart it after rebuilding the backend (`qs kill -c margin`), since `margin serve` keeps running the old binary. Check `qs list --all` for stray instances: two at once confuse IPC. Logs: `/run/user/1000/quickshell/by-id/*/log.qslog`.
 
 ## Backend (`backend/`, the `margin` binary)
 

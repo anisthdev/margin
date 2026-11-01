@@ -1,1 +1,6 @@
 /backend/target/
+# makepkg
+/src/
+/pkg/
+/margin/
+*.pkg.tar.zst

@@ -4,7 +4,8 @@
 #   margin-app new        the window, on a new note
 #   margin-app menu       the menu, or closes it
 #   margin-app menu new   the menu, on a new note
-dir=$(dirname "$(realpath "$0")")
+# margin is the Quickshell config named margin: the package's in
+# /etc/xdg/quickshell, or a ~/.config/quickshell/margin of your own.
 
 case "$1 $2" in
 "new ") action=compose ;;
@@ -15,12 +16,12 @@ case "$1 $2" in
 esac
 
 call() {
-    qs -p "$dir" ipc call margin "$@" >/dev/null 2>&1
+    qs -c margin ipc call margin "$@" >/dev/null 2>&1
 }
 
 call "$action" && exit
 
-setsid -f uwsm app -- qs -n -p "$dir" >/dev/null 2>&1
+setsid -f uwsm app -- qs -n -c margin >/dev/null 2>&1
 # Once it answers, what was asked
 for _ in $(seq 50); do
     sleep 0.1

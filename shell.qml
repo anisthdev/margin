@@ -7,7 +7,7 @@ import QtQuick
 
 // margin: notes, in place of Google Keep, two ways in: the window (Margin)
 // and the shell-style menu (NoteMenu), both on the same notes (Notes, the
-// backend's). Run with `qs -p ~/Projects/margin`; ./margin-app opens either
+// backend's). Run with `qs -c margin`; margin-app opens either
 // (see the IPC below). Neither opens on starting.
 ShellRoot {
     id: shell

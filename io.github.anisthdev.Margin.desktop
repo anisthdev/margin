@@ -3,7 +3,7 @@ Type=Application
 Name=Margin
 GenericName=Notes
 Comment=Notes, in place of Google Keep
-Exec=/home/asif/Projects/margin/margin-app open
+Exec=margin-app open
 Icon=accessories-text-editor
 Terminal=false
 Categories=Utility;TextEditor;
@@ -13,8 +13,8 @@ Actions=new;menu;
 
 [Desktop Action new]
 Name=New note
-Exec=/home/asif/Projects/margin/margin-app new
+Exec=margin-app new
 
 [Desktop Action menu]
 Name=Quick menu
-Exec=/home/asif/Projects/margin/margin-app menu
+Exec=margin-app menu
