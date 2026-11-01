@@ -1,0 +1,29 @@
+#!/bin/sh
+# Opens margin, starting it first when it isn't running:
+#   margin-app            the window, or closes it
+#   margin-app new        the window, on a new note
+#   margin-app menu       the menu, or closes it
+#   margin-app menu new   the menu, on a new note
+dir=$(dirname "$(realpath "$0")")
+
+case "$1 $2" in
+"new ") action=compose ;;
+"menu ") action=menu ;;
+"menu new") action=capture ;;
+" ") action=toggle ;;
+*) action=$1 ;;
+esac
+
+call() {
+    qs -p "$dir" ipc call margin "$@" >/dev/null 2>&1
+}
+
+call "$action" && exit
+
+setsid -f uwsm app -- qs -n -p "$dir" >/dev/null 2>&1
+# Once it answers, what was asked
+for _ in $(seq 50); do
+    sleep 0.1
+    call "$action" && exit
+done
+exit 1

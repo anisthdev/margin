@@ -1,0 +1,20 @@
+[Desktop Entry]
+Type=Application
+Name=Margin
+GenericName=Notes
+Comment=Notes, in place of Google Keep
+Exec=/home/asif/Projects/margin/margin-app open
+Icon=accessories-text-editor
+Terminal=false
+Categories=Utility;TextEditor;
+Keywords=notes;keep;checklist;memo;
+StartupWMClass=io.github.anisthdev.Margin
+Actions=new;menu;
+
+[Desktop Action new]
+Name=New note
+Exec=/home/asif/Projects/margin/margin-app new
+
+[Desktop Action menu]
+Name=Quick menu
+Exec=/home/asif/Projects/margin/margin-app menu
