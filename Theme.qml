@@ -6,9 +6,9 @@ import QtQuick
 
 // Copied from Seedling (itself from quickbar 9e7052b), so margin looks like
 // the shell's menus.
-// Colours come straight from waybar's matugen output, as the shell's do, so
-// the app follows the wallpaper. The file is watched, so a wallpaper change
-// recolours it live.
+// Colours come from colors.css in the app's own config folder, which
+// matugen writes from the wallpaper (any `@define-color NAME rgba(…)` file
+// will do). The file is watched, so a wallpaper change recolours it live.
 Singleton {
     id: root
 
@@ -84,7 +84,9 @@ Singleton {
     }
 
     FileView {
-        path: Quickshell.env("HOME") + "/.config/waybar/colors.css"
+        // Its own palette, `@define-color NAME rgba(…)` lines (matugen
+        // writes it from the wallpaper); without it, the colours above
+        path: (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/margin/colors.css"
         watchChanges: true
         onFileChanged: reload()
         onLoaded: root.parse(text())
