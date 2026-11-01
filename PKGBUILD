@@ -8,6 +8,8 @@ url="https://github.com/anisthdev/margin"
 license=('unknown')
 depends=('quickshell' 'uwsm' 'wl-clipboard' 'xdg-utils' 'gcc-libs' 'glibc')
 makedepends=('git' 'cargo')
+# GCC's LTO objects from rusqlite's bundled SQLite don't link with rust-lld
+options=('!lto')
 source=("git+$url.git")
 sha256sums=('SKIP')
 
