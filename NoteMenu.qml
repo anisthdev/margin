@@ -300,9 +300,9 @@ Scope {
         color: "transparent"
         // Mapped from opening until the fold-away has finished
         visible: false
-        // The shell's menus' name, so Hyprland blurs it as it blurs them and
-        // leaves out its layer slide (the surface covers the screen)
-        WlrLayershell.namespace: "quickbar-overlay"
+        // Its own name, for the compositor's rules: blur it like the shell's
+        // menus, and leave out a layer slide (the surface covers the screen)
+        WlrLayershell.namespace: "margin"
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.keyboardFocus: menu.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
