@@ -202,6 +202,9 @@ FloatingWindow {
         Qt.callLater(focusGrid);
     }
     Component.onCompleted: Qt.callLater(focusGrid)
+    // Closed from outside (Hyprland's close, SUPER+W): hidden, so open
+    // shows it again instead of finding it already "visible"
+    onClosed: visible = false
 
     Item {
         id: page
