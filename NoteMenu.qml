@@ -6,21 +6,22 @@ import "views"
 
 // margin as one of the shell's menus, for a quick look or a quick note
 // without the window: a panel at the bottom centre that springs open
-// upwards, as quickbar's menus and Seedling do. The field filters the notes
-// (pinned first, then the latest) as it's typed; a note opens in place, in
-// the window's editor made compact.
+// upwards, as quickbar's menus and Seedling do. It lists the notes (pinned
+// first, then the latest); the field, there only while searching, filters
+// them as it's typed. A note opens in place, in the window's editor made
+// compact.
 //
-// Keys, vim style, in two modes. It opens typing in the field: Up/Down
+// Keys, vim style, in two modes. It opens in command mode, where single
+// keys act on the current note: j/k (or the arrows) move, gg/G go to the
+// first and last, Enter/o/l open, p pins, c colours, L labels, a archives,
+// d trashes, u undoes the last archive or trash, n starts a note, and Esc
+// or q close the menu. i or / bring up the field and type in it: Up/Down
 // (Ctrl+j/k) move, Enter opens the note (or, with nothing matching, starts
 // one with what's typed), Ctrl+Enter saves what's typed as a new note and
 // stays, Ctrl+n starts a note, Ctrl+o opens the note (else the list) in the
-// window, Ctrl+w closes. Esc leaves the field for command mode, where
-// single keys act on the current note: j/k (or the arrows) move, gg/G go
-// to the first and last, Enter/o/l open, p pins, c colours, L labels, a
-// archives, d trashes, u undoes the last archive or trash, n starts a note,
-// i or / type in the field again, and Esc or q close the menu. In a note,
-// Esc stops typing, to the same keys for that note, and Esc again goes back
-// to the list; see views/Editor.qml.
+// window, Ctrl+w closes, and Esc goes back to command mode, the filter
+// kept. In a note, Esc stops typing, to the same keys for that note, and
+// Esc again goes back to the list; see views/Editor.qml.
 Scope {
     id: menu
 
@@ -45,8 +46,7 @@ Scope {
         open = true;
         field.text = "";
         index = 0;
-        command = false;
-        Qt.callLater(() => field.forceActiveFocus());
+        commandMode();
     }
 
     // The keys back to the list, in whichever mode it was in
@@ -355,7 +355,7 @@ Scope {
 
             // Room for the list or the note, up to most of the screen
             // Up to seven rows; the rest scroll
-            readonly property real listHeight: 26 + header.height + 14 + fieldBox.height + 12 + Math.min(Math.max(list.contentHeight, 120), 7 * 62 - 2) + 20
+            readonly property real listHeight: 26 + header.height + fieldBox.height + 12 + Math.min(Math.max(list.contentHeight, 120), 7 * 62 - 2) + 20
             readonly property real noteHeight: 12 + Math.max(editor.wanted, 220) + 12
             readonly property real pickerHeight: colorPicker.open || labelPicker.open ? 420 : 0
             property real fullHeight: Math.min(surface.height - 32 - 60, Math.max(editor.open ? noteHeight : listHeight, pickerHeight))
@@ -428,66 +428,83 @@ Scope {
 
                         Label {
                             anchors.right: parent.right
-                            text: menu.command ? "Enter open   p pin   c colour   L labels   a archive   d trash   i type" : "Esc commands   Ctrl+Enter save   Ctrl+o window"
+                            text: menu.command ? "Enter open   p pin   c colour   L labels   a archive   d trash   / search" : "Esc commands   Ctrl+Enter save   Ctrl+o window"
                             color: Theme.on_surface_variant
                             font.pixelSize: 12
                             font.weight: Font.Normal
                         }
                     }
 
-                    Rectangle {
+                    // The field, while searching: i or / bring it up, and a
+                    // filter left in it keeps it
+                    Item {
                         id: fieldBox
 
+                        readonly property bool shown: !menu.command || field.text !== ""
+
                         anchors.top: header.bottom
-                        anchors.topMargin: 14
                         width: parent.width
-                        height: 48
-                        radius: Theme.radius
-                        color: Qt.alpha(Theme.surface_container_high, 0.85)
-                        border.width: field.activeFocus && !menu.command ? 2 : 0
-                        border.color: Theme.primary
+                        height: shown ? 14 + 48 : 0
+                        clip: true
 
-                        Icon {
-                            x: 18
-                            name: "search"
-                            size: 20
-                            color: Theme.on_surface_variant
-                        }
-
-                        TextInput {
-                            id: field
-
-                            anchors.left: parent.left
-                            anchors.leftMargin: 52
-                            anchors.right: parent.right
-                            anchors.rightMargin: 18
-                            anchors.verticalCenter: parent.verticalCenter
-                            color: Theme.on_surface
-                            selectionColor: Theme.primary
-                            selectedTextColor: Theme.on_primary
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 16
-                            clip: true
-                            onTextChanged: search.restart()
-                            Keys.onPressed: event => event.accepted = menu.fieldKey(event)
-                            // A click in it types again
-                            onActiveFocusChanged: if (activeFocus)
-                                menu.command = false
-
-                            Label {
-                                anchors.verticalCenter: undefined
-                                visible: field.text === ""
-                                text: "Search, or type a new note"
-                                color: Theme.on_surface_variant
-                                font: field.font
+                        Behavior on height {
+                            NumberAnimation {
+                                duration: Theme.animFast
+                                easing.type: Easing.OutCubic
                             }
                         }
 
-                        Timer {
-                            id: search
+                        Rectangle {
+                            y: 14
+                            width: parent.width
+                            height: 48
+                            radius: Theme.radius
+                            color: Qt.alpha(Theme.surface_container_high, 0.85)
+                            border.width: field.activeFocus && !menu.command ? 2 : 0
+                            border.color: Theme.primary
 
-                            interval: 120
-                            onTriggered: menu.load()
+                            Icon {
+                                x: 18
+                                name: "search"
+                                size: 20
+                                color: Theme.on_surface_variant
+                            }
+
+                            TextInput {
+                                id: field
+
+                                anchors.left: parent.left
+                                anchors.leftMargin: 52
+                                anchors.right: parent.right
+                                anchors.rightMargin: 18
+                                anchors.verticalCenter: parent.verticalCenter
+                                color: Theme.on_surface
+                                selectionColor: Theme.primary
+                                selectedTextColor: Theme.on_primary
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 16
+                                clip: true
+                                onTextChanged: search.restart()
+                                Keys.onPressed: event => event.accepted = menu.fieldKey(event)
+                                // A click in it types again
+                                onActiveFocusChanged: if (activeFocus)
+                                    menu.command = false
+
+                                Label {
+                                    anchors.verticalCenter: undefined
+                                    visible: field.text === ""
+                                    text: "Search, or type a new note"
+                                    color: Theme.on_surface_variant
+                                    font: field.font
+                                }
+                            }
+
+                            Timer {
+                                id: search
+
+                                interval: 120
+                                onTriggered: menu.load()
+                            }
                         }
                     }
 
@@ -645,7 +662,7 @@ Scope {
                         anchors.top: list.top
                         anchors.topMargin: 40
                         visible: menu.notes.length === 0
-                        text: field.text.trim() === "" ? "No notes yet: type one, then Ctrl+Enter" : "Nothing matches. Enter starts a note with it, Ctrl+Enter saves it."
+                        text: field.text.trim() === "" ? (menu.command ? "No notes yet: n starts one" : "No notes yet: type one, then Ctrl+Enter") : "Nothing matches. Enter starts a note with it, Ctrl+Enter saves it."
                         color: Theme.on_surface_variant
                         font.weight: Font.Normal
                     }
