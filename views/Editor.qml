@@ -16,10 +16,12 @@ import "../components"
 // archive and trash, as p/c/L/a/d do on the grid. Ctrl+click on a link
 // opens it.
 //
-// Esc stops typing, vim style, into command mode (the toolbar lists its
-// keys): p pins, c colours, L labels, a archives, d trashes, i or Enter
-// type in the body again, t in the title, and Esc or q close the note. A
-// click in the text types again too.
+// A note opens in command mode, vim style (the toolbar lists its keys), one
+// with no body yet typing. There the body shows rendered, as a card shows
+// it, with boxes that tick and links that open on a click; typing shows the
+// plain Markdown. p pins, c colours, L labels, a archives, d trashes, i or
+// Enter type in the body, t in the title, and Esc or q close the note. A
+// click in the text types too, and Esc stops typing.
 //
 // Pictures: Ctrl+V with one on the clipboard, or files dropped on the
 // card, attach them (making the note first, if it's new). They show across
@@ -34,6 +36,8 @@ Item {
     property bool compact: false
     // Not typing: single keys act on the note (see keys)
     property bool command: false
+    // The body rendered rather than as text: an empty one keeps its hint
+    readonly property bool rendered: (command || trashed) && body.text.trim() !== ""
     // Where typing goes back to, after command mode or a picker
     property Item lastField: body
     // The card's height for its content, for the menu to make room
@@ -42,6 +46,7 @@ Item {
     property string noteId
     property string color
     property var labels: []
+    readonly property string bodyText: body.text
     property bool pinned: false
     property bool archived: false
     property bool trashed: false
@@ -73,15 +78,16 @@ Item {
         trashed = note.trashed;
         updated = note.updated;
         dirty = false;
-        command = false;
+        // To read, unless there's nothing to read yet
+        const reading = !trashed && note.body.trim() !== "";
+        command = reading;
         open = true;
+        body.cursorPosition = body.length;
         Qt.callLater(() => {
-            if (trashed)
+            if (reading || trashed)
                 keys.forceActiveFocus();
-            else {
+            else
                 body.forceActiveFocus();
-                body.cursorPosition = body.length;
-            }
         });
     }
 
@@ -110,6 +116,12 @@ Item {
                 body.cursorPosition = body.length;
             }
         });
+    }
+
+    // A box ticked in the rendered body
+    function setBody(text) {
+        body.text = text;
+        changed();
     }
 
     function fields() {
@@ -668,10 +680,37 @@ Item {
                     }
                 }
 
+                // Under the text, so its links and boxes take their clicks
+                Item {
+                    width: parent.width
+                    height: renderedBody.height
+                    visible: root.rendered
+
+                    MouseArea {
+                        anchors.fill: parent
+                        enabled: !root.trashed
+                        onClicked: mouse => {
+                            if (!renderedBody.linkAt(mouse.x, mouse.y))
+                                root.edit(body);
+                        }
+                    }
+
+                    NoteBody {
+                        id: renderedBody
+
+                        width: parent.width
+                        body: root.rendered ? root.bodyText : ""
+                        fontSize: 15
+                        interactive: !root.trashed
+                        onToggled: text => root.setBody(text)
+                    }
+                }
+
                 TextEdit {
                     id: body
 
                     width: parent.width
+                    visible: !root.rendered
                     readOnly: root.trashed
                     color: Theme.on_surface
                     selectionColor: Theme.primary

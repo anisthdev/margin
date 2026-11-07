@@ -10,6 +10,7 @@ Column {
 
     property string body
     property color color: Theme.on_surface
+    property int fontSize: 14
     property bool interactive: true
 
     signal toggled(string body)
@@ -70,6 +71,17 @@ Column {
         return line.trim() !== "" && !/^\s*([-*+] |\d+[.)] |#{1,6} |> |\||```|~~~)/.test(line);
     }
 
+    // The link under a place in this item, else ""
+    function linkAt(x, y) {
+        let item = root;
+        let point = Qt.point(x, y);
+        for (let child = item.childAt(x, y); child; child = item.childAt(point.x, point.y)) {
+            point = item.mapToItem(child, point);
+            item = child;
+        }
+        return item !== root && item.linkAt ? item.linkAt(point.x, point.y) : "";
+    }
+
     // The body with line i's box ticked or unticked
     function toggle(i) {
         const next = lines.slice();
@@ -99,6 +111,7 @@ Column {
                     textFormat: Text.MarkdownText
                     wrapMode: Text.Wrap
                     color: root.color
+                    font.pixelSize: root.fontSize
                     font.weight: Font.Normal
 
                     LinkTaps {}
@@ -143,6 +156,7 @@ Column {
                         textFormat: Text.MarkdownText
                         wrapMode: Text.Wrap
                         color: block.modelData.checked ? Theme.on_surface_variant : root.color
+                        font.pixelSize: root.fontSize
                         font.weight: Font.Normal
                         font.strikeout: block.modelData.checked
 
