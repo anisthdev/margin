@@ -67,4 +67,4 @@ Everything works from the keyboard, vim style; `?` lists the keys (keep `Margin.
 
 ## Design
 
-Keep's layout in the shell's look: side menu pills (`secondary_container`), a pill search field, "Take a note…" bar, cards in masonry columns (pinned under their own heading), an open note as a card over a scrim. Colours from `Theme` only (matugen); note colours from `NoteColors`.
+Keep's layout in the shell's look: side menu pills (`secondary_container`), a search field in the shell's corners, "Take a note…" bar, cards in masonry columns (pinned under their own heading), an open note as a card over a scrim. Colours from `Theme` only (matugen); note colours from `NoteColors`.

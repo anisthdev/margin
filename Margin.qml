@@ -260,7 +260,7 @@ FloatingWindow {
                 x: sidebar.x + sidebar.width + 16
                 width: Math.min(parent.width - x - 28, 720)
                 height: 48
-                radius: height / 2
+                radius: Theme.radius
                 color: search.activeFocus ? Theme.surface_container_highest : Theme.surface_container_high
 
                 Behavior on color {

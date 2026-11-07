@@ -442,7 +442,7 @@ Scope {
                         anchors.topMargin: 14
                         width: parent.width
                         height: 48
-                        radius: height / 2
+                        radius: Theme.radius
                         color: Qt.alpha(Theme.surface_container_high, 0.85)
                         border.width: field.activeFocus && !menu.command ? 2 : 0
                         border.color: Theme.primary

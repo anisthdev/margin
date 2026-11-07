@@ -126,7 +126,7 @@ Item {
             Rectangle {
                 width: parent.width
                 height: 44
-                radius: height / 2
+                radius: Theme.radius
                 color: Theme.surface_container_highest
 
                 Icon {
